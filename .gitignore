@@ -1,5 +1,6 @@
 /karaoke_rankings/*.csv
 /usen_rankings/*.csv
 /lyrics/*.txt
+/logs/*.txt
 .DS_Store
 

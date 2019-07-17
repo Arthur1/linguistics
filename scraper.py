@@ -6,16 +6,16 @@ from bs4 import BeautifulSoup
 import csv
 import re
 import time
+import os
 
 # 定数
 KARAOKE_RANKINGS_DIR = './karaoke_rankings/'
 USEN_RANKINGS_DIR = './usen_rankings/'
 LYRICS_DIR = './lyrics/'
+LOGS_DIR = './logs/'
 RANKING_NUM = 20
 BEGIN_YEAR = 1980
 END_YEAR = 2018
-
-song_list = []
 
 # ランキングを取得し、CSVに書き出す
 def get_ranking(term):
@@ -48,13 +48,10 @@ def get_ranking(term):
             artist = cells[1].find('a').string
             writer.writerow([str(rank), title, artist])
             # まだその曲の歌詞を取得していないなら取得
-            if (title + artist) not in song_list:
+            lyric_path = LYRICS_DIR + title.replace('/', '') + '_' + artist.replace('/', '') + '.txt'
+            if not os.path.exists(lyric_path):
                 print('    Download Lyric: ' + title + '/' + artist)
-                song_list.append(title + artist)
-                try:
-                    get_lyric(title, artist)
-                except AttributeError:
-                    print('        Not Found.')
+                get_lyric(title, artist)
         f.close()
 
 # 曲名とからJ-LyricのURLを得る
@@ -77,7 +74,15 @@ def get_lyric_url(title, artist):
 # 歌詞をtxtファイルに書き出す
 def get_lyric(title, artist):
     # URLにアクセス
-    url = get_lyric_url(title=title, artist=artist)
+    try:
+        url = get_lyric_url(title=title, artist=artist)
+    except AttributeError:
+        print('        Not Found.')
+        # エラーログ
+        f = open(LOGS_DIR + 'get_lyric.txt', 'a')
+        f.write(title + ' / ' + artist + '\n')
+        f.close()
+        return
     response = urllib.request.urlopen(url)
     bs = BeautifulSoup(response.read(), 'lxml')
     time.sleep(1)
@@ -86,7 +91,7 @@ def get_lyric(title, artist):
     # 対象要素から不要なタグを削除
     lyric = str(element).replace('<p id="Lyric">', '').replace('</p>', '').replace('<br/>', '\n')
     # ファイルに出力
-    f = open(LYRICS_DIR + title + '_' + artist + '.txt', 'w')
+    f = open(LYRICS_DIR + title.replace('/', '') + '_' + artist.replace('/', '') + '.txt', 'w')
     f.write(lyric)
     f.close()
 
