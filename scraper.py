@@ -19,11 +19,10 @@ END_YEAR = 2018
 
 # ランキングを取得し、CSVに書き出す
 def get_ranking(term):
-    global song_list
     if term == 'karaoke':
         url_term = 'karaoke'
     elif term == 'usen':
-        url_term = 'usen_rank'
+        url_term = 'usen_rank_'
     else:
         raise Exception
     # 開始年から終了年までループ
@@ -57,7 +56,14 @@ def get_ranking(term):
 # 曲名とからJ-LyricのURLを得る
 def get_lyric_url(title, artist):
     # 検索用URL生成
-    query = {'kt': title, 'ct': 2, 'ka': artist, 'ca': 2, 'kl': '', 'cl': 2,}
+    query = {
+        'kt': title.replace('〜', '').replace('･', '').replace('−', ''),
+        'ct': 2,
+        'ka': artist.replace('〜', '').replace('･', '').replace('−', ''),
+        'ca': 2,
+        'kl': '',
+        'cl': 2,
+    }
     query_str = urllib.parse.urlencode(query)
     search_url = 'http://search.j-lyric.net/index.php?' + query_str
     # URLにアクセス
