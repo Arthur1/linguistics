@@ -53,13 +53,24 @@ def get_ranking(term):
                 get_lyric(title, artist)
         f.close()
 
+# URLを指定したcsvを利用して歌詞を取得
+def get_lyrics_static():
+    f = open(LOGS_DIR + 'uniq_get_lyric.csv', 'r')
+    reader = csv.reader(f, lineterminator='\n')
+    for row in reader:
+        if row[2] is '':
+            continue
+        print('    Download Lyric: ' + row[0] + '/' + row[1])
+        get_lyric(row[0], row[1], row[2])
+    f.close()
+
 # 曲名とからJ-LyricのURLを得る
 def get_lyric_url(title, artist):
     # 検索用URL生成
     query = {
-        'kt': re.sub('[\(,\-].+?[\),\-]', '', title.replace('〜', '').replace('･', '').replace('−', '')),
+        'kt': payload_filter(title),
         'ct': 2,
-        'ka': re.sub('[\(,\-].+?[\),\-]', '', artist.replace('〜', '').replace('･', '').replace('−', '')),
+        'ka': payload_filter(artist),
         'ca': 2,
         'kl': '',
         'cl': 2,
@@ -76,12 +87,23 @@ def get_lyric_url(title, artist):
     lyric_url = element.get('href')
     return lyric_url
 
+# 検索時に不要な記号などを取り除く
+def payload_filter(str):
+    str = re.sub('[(-〜].+?[)-〜]', '', str)
+    str = str.replace('･', '').replace('…', '').replace('＆', '').replace('.', '')
+    return str
 
 # 歌詞をtxtファイルに書き出す
-def get_lyric(title, artist):
+def get_lyric(title, artist, url=None):
     # URLにアクセス
     try:
-        url = get_lyric_url(title=title, artist=artist)
+        if url is None:
+            url = get_lyric_url(title=title, artist=artist)
+        response = urllib.request.urlopen(url)
+        bs = BeautifulSoup(response.read(), 'lxml')
+        time.sleep(1)
+        # 歌詞が含まれる要素を選択
+        element = bs.find('div', id='mnb').find('div', class_='lbdy').find('p', id='Lyric')
     except AttributeError:
         print('        Not Found.')
         # エラーログ
@@ -90,11 +112,6 @@ def get_lyric(title, artist):
         writer.writerow([title, artist])
         f.close()
         return
-    response = urllib.request.urlopen(url)
-    bs = BeautifulSoup(response.read(), 'lxml')
-    time.sleep(1)
-    # 歌詞が含まれる要素を選択
-    element = bs.find('div', id='mnb').find('div', class_='lbdy').find('p', id='Lyric')
     # 対象要素から不要なタグを削除
     lyric = str(element).replace('<p id="Lyric">', '').replace('</p>', '').replace('<br/>', '\n')
     # ファイルに出力
@@ -104,3 +121,4 @@ def get_lyric(title, artist):
 
 get_ranking('karaoke')
 get_ranking('usen')
+# get_lyrics_static()
