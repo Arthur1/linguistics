@@ -21,15 +21,17 @@ END_YEAR = 2018
 def get_ranking(term):
     if term == 'karaoke':
         url_term = 'karaoke'
+        ranking_dir = KARAOKE_RANKINGS_DIR
     elif term == 'usen':
         url_term = 'usen_rank_'
+        ranking_dir = USEN_RANKINGS_DIR
     else:
         raise Exception
     # 開始年から終了年までループ
     for year in range(BEGIN_YEAR, END_YEAR + 1):
         print('Download Ranking Table: ' + term + '/' + str(year) + '年')
         # 書き込むCSVを開く
-        f = open(KARAOKE_RANKINGS_DIR + str(year) + '.csv', 'w')
+        f = open(ranking_dir + str(year) + '.csv', 'w')
         writer = csv.writer(f, lineterminator='\n')
         # URLにアクセス
         url = 'https://entamedata.web.fc2.com/music2/' + url_term + str(year) + '.html'

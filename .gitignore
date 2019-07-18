@@ -3,6 +3,7 @@
 /lyrics/*.txt
 /logs/*.txt
 /logs/*.csv
+/term_frequency/*.csv
 .DS_Store
 ~*
 
