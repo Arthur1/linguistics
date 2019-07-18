@@ -2,5 +2,7 @@
 /usen_rankings/*.csv
 /lyrics/*.txt
 /logs/*.txt
+/logs/*.csv
 .DS_Store
+~*
 

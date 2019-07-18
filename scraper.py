@@ -1,12 +1,12 @@
 # カラオケランキング情報を取得し、その歌詞をtxtファイルで取得する
 __author__ = 'Kazuki Asakura'
 
-import urllib.request
-from bs4 import BeautifulSoup
 import csv
+import os
 import re
 import time
-import os
+import urllib.request
+from bs4 import BeautifulSoup
 
 # 定数
 KARAOKE_RANKINGS_DIR = './karaoke_rankings/'
@@ -57,9 +57,9 @@ def get_ranking(term):
 def get_lyric_url(title, artist):
     # 検索用URL生成
     query = {
-        'kt': title.replace('〜', '').replace('･', '').replace('−', ''),
+        'kt': re.sub('[\(,\-].+?[\),\-]', '', title.replace('〜', '').replace('･', '').replace('−', '')),
         'ct': 2,
-        'ka': artist.replace('〜', '').replace('･', '').replace('−', ''),
+        'ka': re.sub('[\(,\-].+?[\),\-]', '', artist.replace('〜', '').replace('･', '').replace('−', '')),
         'ca': 2,
         'kl': '',
         'cl': 2,
@@ -85,8 +85,9 @@ def get_lyric(title, artist):
     except AttributeError:
         print('        Not Found.')
         # エラーログ
-        f = open(LOGS_DIR + 'get_lyric.txt', 'a')
-        f.write(title + ' / ' + artist + '\n')
+        f = open(LOGS_DIR + 'get_lyric.csv', 'a')
+        writer = csv.writer(f, lineterminator='\n')
+        writer.writerow([title, artist])
         f.close()
         return
     response = urllib.request.urlopen(url)
