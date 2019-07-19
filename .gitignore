@@ -4,6 +4,7 @@
 /logs/*.txt
 /logs/*.csv
 /term_frequency/*.csv
+/pickup/*.csv
 .DS_Store
 ~*
 
