@@ -4,6 +4,7 @@ import csv
 
 BEGIN_YEAR = 1980
 END_YEAR = 2018
+PICKUP_NUMBER = 100
 
 def count_songs(ranking_type):
     count = 0
@@ -26,7 +27,7 @@ r_karaoke = csv.reader(f_karaoke)
 
 count = 0
 for row in r_karaoke:
-    if count >= 200:
+    if count >= PICKUP_NUMBER:
         break
     count += 1
     if row[1] not in term_dict.keys():
@@ -45,7 +46,7 @@ f_usen = open('./term_frequency/sorted_usen.csv', 'r')
 r_usen = csv.reader(f_usen)
 count = 0
 for row in r_usen:
-    if count >= 200:
+    if count >= PICKUP_NUMBER:
         break
     count += 1
     if row[1] not in term_dict.keys():
